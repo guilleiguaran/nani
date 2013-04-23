@@ -6,26 +6,29 @@ module Nani
   class Worker
     include Celluloid
 
-    def initialize(connection, queue, n)
-      @channel  = connection.create_channel
-      @channel.prefetch(1)
+    finalizer :close_channel
+
+    def initialize(connection, queue)
+      @channel = connection.create_channel
       @queue = @channel.queue(queue)
-      @n = n
     end
 
     def call
       @queue.subscribe(block: true, ack: true) do |info, properties, payload|
-        job = Marshal.load(payload['job'])
-        job.run
+        begin
+          job = Marshal.load(JSON.parse(payload)['job'])
+          puts job.run
+        rescue => err
+          $stderr.puts(err.message)
+        end
+        @channel.ack(info.delivery_tag, false)
       end
     end
 
-    def finalize
+    def close_channel
       @channel.close
-      super
-      true
     end
-    alias_method :terminate, :finalize
+    alias_method :terminate, :close_channel
   end
 
   class Consumer
@@ -34,14 +37,13 @@ module Nani
       @connection = Bunny.new(options)
       @connection.start
 
-      @workers = @size.times.map do |n|
-        Worker.new(@connection, queue, n)
+      @workers = @size.times.map do
+        Worker.new(@connection, queue)
       end
     end
 
     def start
-      @workers.map { |w| w.call! }
-      Signal.trap('INT') { close_connection }
+      @workers.map { |w| w.async.call }
     end
 
     def close_connection
