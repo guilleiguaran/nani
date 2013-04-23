@@ -16,10 +16,8 @@ module Nani
 
     def call
       @queue.subscribe(block: true, ack: true) do |info, properties, payload|
-        $stdout.puts "[#{@n}] Before ack"
-        @channel.ack(info.delivery_tag)
-        sleep 0.5
-        $stdout.puts "[#{@n}] Received: #{payload}"
+        job = Marshal.load(payload['job'])
+        job.run
       end
     end
 
@@ -42,8 +40,9 @@ module Nani
       end
     end
 
-    def call
+    def start
       @workers.map { |w| w.call! }
+      Signal.trap('INT') { close_connection }
     end
 
     def close_connection
@@ -60,8 +59,8 @@ module Nani
       @exchange = @channel.direct(name)
     end
 
-    def push(message)
-      @exchange.publish(message)
+    def push(job)
+      @exchange.publish({'job' => Marshal.dump(job)})
     end
 
     def close_connection
