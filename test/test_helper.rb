@@ -8,3 +8,15 @@ require "rubygems"
 require "nani"
 require "minitest/unit"
 require "minitest/autorun"
+
+class Job
+  attr_accessor :name
+
+  def initialize(name = "Job1")
+    @name = name
+  end
+
+  def run
+    name
+  end
+end

@@ -1,5 +1,6 @@
 require "bunny"
 require "celluloid"
+require "json"
 
 module Nani
   class Worker
@@ -50,15 +51,17 @@ module Nani
   end
 
   class Queue
+    attr_reader :name
+
     def initialize(name, options = {})
+      @name = name
       @connection = Bunny.new(options)
       @connection.start
-      @channel = @connection.create_channel
-      @exchange = @channel.direct(name)
+      @queue = @connection.queue(@name)
     end
 
-    def push(job)
-      @exchange.publish({'job' => Marshal.dump(job)})
+    def push(job, opts = {})
+      @queue.publish({'job' => Marshal.dump(job)}.to_json, opts.merge({ content_type: "application/json" }))
     end
 
     def close_connection
