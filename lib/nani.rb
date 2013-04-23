@@ -2,8 +2,6 @@ require "bunny"
 require "celluloid"
 
 module Nani
-  VERSION = "0.0.1"
-
   class Worker
     include Celluloid
 

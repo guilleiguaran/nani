@@ -1,15 +1,13 @@
 # coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'nani'
+require File.expand_path('../lib/nani/version', __FILE__)
 
 Gem::Specification.new do |spec|
   spec.name          = "nani"
   spec.version       = Nani::VERSION
   spec.authors       = ["Guillermo Iguaran"]
   spec.email         = ["guilleiguaran@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{AMQP workers}
+  spec.summary       = %q{Write a gem summary}
   spec.homepage      = ""
   spec.license       = "MIT"
 
