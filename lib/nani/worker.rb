@@ -12,6 +12,7 @@ module Nani
         work = receive { |msg| msg.is_a? Work }
         job = Marshal.load(JSON.parse(work.payload)['job'])
         job.run
+        @supervisor.mailbox << FinishedWork.new(self, work.info.delivery_tag)
         puts "Got a work: #{work.inspect}"
       end
     end

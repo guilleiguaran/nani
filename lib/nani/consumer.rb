@@ -14,9 +14,10 @@ module Nani
       @queue = @channel.queue(queue)
 
       @inactive_workers = @size.times.map do
-        Worker.new
+        Worker.new(self)
       end
-      @inactive_workers = []
+      @active_workers = []
+      async.wait_for_finished_work
     end
 
     def start
@@ -41,6 +42,7 @@ module Nani
         @active_workers.delete(work.worker)
         @inactive_workers.push(work.worker)
         @channel.ack(work.tag, false)
+        puts "Got a finished work: #{work.inspect}"
       end
     end
 

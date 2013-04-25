@@ -11,8 +11,9 @@ class Job
   end
 end
 
-consumer = Nani::Consumer.new("jobs_queue", 2)
-puts "Starting consumer with queue 'jobs_queue' and 2 workers"
+n = 2
+consumer = Nani::Consumer.new("jobs_queue", n)
+puts "Starting consumer with queue 'jobs_queue' and #{n} workers"
 
 consumer.start
 Signal.trap('INT') { consumer.close_connection }
