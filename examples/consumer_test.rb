@@ -7,11 +7,14 @@ class Job
   end
 
   def run
+    sleep 2
     puts @name
   end
 end
 
-n = 2
+Celluloid.logger = Logger.new('logfile.log')
+
+n = 4
 consumer = Nani::Consumer.new("jobs_queue", n)
 puts "Starting consumer with queue 'jobs_queue' and #{n} workers"
 

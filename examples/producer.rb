@@ -12,7 +12,7 @@ class Job
 end
 
 queue = Nani::Queue.new("jobs_queue")
-["one", "two", "three"].each do |name|
+(1..100).each do |name|
   job = Job.new(name)
   queue.push(job)
 end
